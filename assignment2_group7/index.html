@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtViz Dataset Visualization</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        /* Title Styling */
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #1e2e1e;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        /* Subheading (h3) Styling */
+        h3 {
+            text-align: left;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3c763d;
+            margin-top: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Container for the map and pie charts */
+        #visualization-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Map Styling */
+        #map {
+            width: 60%;
+            height: 500px;
+            border: 1px solid #ccc;
+        }
+
+        /* Pie Chart Container Styling */
+        #pie-container {
+            width: 38%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Individual Pie Charts Styling */
+        #pie-chart, #pie-chart-type {
+            width: 100%;
+            height: 250px;
+            border: 1px solid #ccc;
+        }
+
+        /* Slider Container Styling */
+        #time-slider-container {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Slider Styling */
+        #time-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 80%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        #time-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s;
+        }
+
+        #time-slider::-webkit-slider-thumb:hover {
+            background: #45a049;
+        }
+
+        #time-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s;
+        }
+
+        #time-slider::-moz-range-thumb:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>ArtViz Dataset: Global Art Exhibition Trends</h1>
+    <div id="time-slider-container">
+        <label for="time-slider">Year: <span id="year">1905</span></label>
+        <input type="range" id="time-slider" min="1905" max="1915" step="1" value="1905">
+    </div>
+    <h3>Interactive Map: Explore Global Exhibition Data </h3>
+    <p>Currently Selected Country: <span id="selected-country"></span></p>
+    <div id="visualization-container">
+        <div id="map"></div>
+        <div id="pie-container">
+            <svg id="pie-chart"></svg>
+            <svg id="pie-chart-type"></svg>
+        </div>        
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

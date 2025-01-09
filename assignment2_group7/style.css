@@ -1,0 +1,15 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+#map {
+    width: 60%;
+    height: 500px;
+    border: 1px solid #ccc;
+}
+
+#time-slider {
+    margin: 20px 0;
+    width: 100%;
+}
