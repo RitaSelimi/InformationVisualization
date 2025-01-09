@@ -59,7 +59,7 @@ function preprocessAggregatedData(data) {
 function initializeMap() {
     const svg = d3.select("#map")
         .append("svg")
-        .attr("width", 1120)
+        .attr("width", "90%")
         .attr("height", 500)
         .call(
             d3.zoom().on("zoom", event => {
