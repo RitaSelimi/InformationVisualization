@@ -1,134 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ArtViz Dataset Visualization</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        /* General Styling */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+      /* Add your existing styles here */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      h1 {
+        text-align: center;
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #1e2e1e;
+      }
+      #visualization-container {
+        display: flex;
+        justify-content: space-between;
+      }
+      #map {
+        width: 60%;
+        height: 500px;
+        border: 1px solid #ccc;
+      }
+      #pie-container {
+        width: 38%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+      #pie-chart,
+      #pie-chart-type {
+        width: 100%;
+        height: 250px;
+        border: 1px solid #ccc;
+      }
+      #time-slider-container {
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+      #time-slider {
+        width: 80%;
+        height: 10px;
+        background: #ddd;
+        border-radius: 5px;
+      }
+      #time-slider::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+        background: #4caf50;
+        border-radius: 50%;
+      }
+      #gender-pie-chart {
+        width: 100%;
+        height: 250px;
+        border: 1px solid #ccc;
+      }
+      #artist-list {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        background-color: #f9f9f9;
+      }
 
-        /* Title Styling */
-        h1 {
-            text-align: center;
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #1e2e1e;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-        }
+      /* Tooltip styles */
+      .country-tooltip {
+        position: absolute;
+        visibility: hidden;
+        background: rgba(52, 89, 149, 0.8);
+        color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+      }
 
-        /* Subheading (h3) Styling */
-        h3 {
-            text-align: left;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #3c763d;
-            margin-top: 20px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-        }
+      /* Add a container for the artist bar chart */
+      #artist-bar-chart {
+        width: 100%;
+        height: 300px;
+        margin-top: 20px;
+      }
 
-        /* Container for the map and pie charts */
-        #visualization-container {
-            display: flex;
-            justify-content: space-between;
-        }
+      .tooltip {
+        font-size: 14px;
+        pointer-events: none;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
 
-        /* Map Styling */
-        #map {
-            width: 60%;
-            height: 500px;
-            border: 1px solid #ccc;
-        }
+      .bar {
+        cursor: pointer; /* Change the cursor to a pointer to indicate that the bar is clickable */
+        transition: all 0.3s ease; /* Smooth transition for hover and click effects */
+      }
 
-        /* Pie Chart Container Styling */
-        #pie-container {
-            width: 38%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+      .bar:hover {
+        opacity: 0.8; /* Reduce opacity to give a more interactive feel */
+        transform: scale(1.1); /* Slightly enlarge the bar on hover */
+      }
 
-        /* Individual Pie Charts Styling */
-        #pie-chart, #pie-chart-type {
-            width: 100%;
-            height: 250px;
-            border: 1px solid #ccc;
-        }
-
-        /* Slider Container Styling */
-        #time-slider-container {
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        /* Slider Styling */
-        #time-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 80%;
-            height: 10px;
-            background: #ddd;
-            border-radius: 5px;
-            outline: none;
-            transition: background 0.3s;
-        }
-
-        #time-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #4CAF50;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
-            transition: background 0.3s;
-        }
-
-        #time-slider::-webkit-slider-thumb:hover {
-            background: #45a049;
-        }
-
-        #time-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #4CAF50;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
-            transition: background 0.3s;
-        }
-
-        #time-slider::-moz-range-thumb:hover {
-            background: #45a049;
-        }
+      .bar:active {
+        transform: scale(0.95); /* Slightly shrink the bar on click */
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>ArtViz Dataset: Global Art Exhibition Trends</h1>
     <div id="time-slider-container">
-        <label for="time-slider">Year: <span id="year">1905</span></label>
-        <input type="range" id="time-slider" min="1905" max="1915" step="1" value="1905">
+      <label for="time-slider">Year: <span id="year">1905</span></label>
+      <input
+        type="range"
+        id="time-slider"
+        min="1905"
+        max="1915"
+        step="1"
+        value="1905"
+      />
     </div>
-    <h3>Interactive Map: Explore Global Exhibition Data </h3>
-    <p>Currently Selected Country: <span id="selected-country"></span></p>
+    <h3>Interactive Map: Explore Global Exhibition Data</h3>
+    <p>Currently Selected Country: <span id="selected-country">DE</span></p>
     <div id="visualization-container">
-        <div id="map"></div>
-        <div id="pie-container">
-            <svg id="pie-chart"></svg>
-            <svg id="pie-chart-type"></svg>
-        </div>        
+      <div id="map"></div>
+      <div id="pie-container">
+        <svg id="pie-chart"></svg>
+        <svg id="pie-chart-type"></svg>
+        <svg id="gender-pie-chart" width="400" height="400"></svg>
+
+        <!-- Section to display artist contributions -->
+        <div id="artist-contribution-details"></div>
+
+        <!-- Bar Chart for Top Artists -->
+        <div id="chart-container"></div>
+
+        <div id="line-chart-container"></div>
+      </div>
     </div>
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
