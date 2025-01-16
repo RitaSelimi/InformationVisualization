@@ -20,26 +20,46 @@
       }
       #visualization-container {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
+        align-items: center;
+      }
+      #map-container {
+        width: 90%;
+        margin-bottom: 20px;
       }
       #map {
-        width: 60%;
+        width: 100%;
         height: 500px;
         border: 1px solid #ccc;
       }
       #pie-container {
-        width: 38%;
+        width: 100%;
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 20px;
       }
       #pie-chart,
-      #pie-chart-type {
-        width: 100%;
+      #pie-chart-type,
+      #gender-pie-chart {
+        width: 32%;
         height: 250px;
         border: 1px solid #ccc;
       }
+
+      #charts-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        margin-top: 20px; /* Reduced top margin */
+      }
+
+      #chart-container,
+      #line-chart-container {
+        width: 48%; /* Slightly reduced width to make them closer */
+      }
+
       #time-slider-container {
         margin: 20px 0;
         display: flex;
@@ -59,17 +79,6 @@
         background: #4caf50;
         border-radius: 50%;
       }
-      #gender-pie-chart {
-        width: 100%;
-        height: 250px;
-        border: 1px solid #ccc;
-      }
-      #artist-list {
-        margin-top: 20px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        background-color: #f9f9f9;
-      }
 
       /* Tooltip styles */
       .country-tooltip {
@@ -81,13 +90,6 @@
         border-radius: 5px;
         font-family: Arial, sans-serif;
         font-size: 12px;
-      }
-
-      /* Add a container for the artist bar chart */
-      #artist-bar-chart {
-        width: 100%;
-        height: 300px;
-        margin-top: 20px;
       }
 
       .tooltip {
@@ -131,18 +133,21 @@
     <h3>Interactive Map: Explore Global Exhibition Data</h3>
     <p>Currently Selected Country: <span id="selected-country">DE</span></p>
     <div id="visualization-container">
-      <div id="map"></div>
+      <div id="map-container">
+        <div id="map"></div>
+      </div>
       <div id="pie-container">
         <svg id="pie-chart"></svg>
         <svg id="pie-chart-type"></svg>
         <svg id="gender-pie-chart" width="400" height="400"></svg>
+      </div>
 
-        <!-- Section to display artist contributions -->
-        <div id="artist-contribution-details"></div>
-
+      <!-- Section for Bar Chart and Line Chart side by side -->
+      <div id="charts-container">
         <!-- Bar Chart for Top Artists -->
         <div id="chart-container"></div>
 
+        <!-- Line Chart for Artist Contributions -->
         <div id="line-chart-container"></div>
       </div>
     </div>
