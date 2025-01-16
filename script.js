@@ -192,6 +192,7 @@ function drawMap(data, year) {
       selectedCountry = countryCode; // Update selected country
       console.log(`Country clicked: ${countryCode}`);
       updatePieCharts(countryCode, year); // Update pie charts
+      displayArtists(selectedCountry, year);
       document.getElementById("selected-country").textContent = selectedCountry;
     });
 }
@@ -689,7 +690,22 @@ function displayArtists(countryCode, year) {
     .nice()
     .range([height, 0]);
 
-  // Append the bars
+  // Create tooltip
+  const tooltip = d3
+    .select("#chart-container")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0)
+    .style("position", "absolute")
+    .style("background-color", "rgba(52, 89, 149, 0.8)") // Softer blue with transparency
+    .style("color", "#fff")
+    .style("padding", "10px")
+    .style("border-radius", "5px")
+    .style("font-family", "Arial, sans-serif")
+    .style("font-size", "12px")
+    .style("box-shadow", "0 5px 15px rgba(0, 0, 0, 0.2)");
+
+  // Append the bars and set up tooltip
   svg
     .selectAll(".bar")
     .data(limitedArtists)
@@ -701,9 +717,23 @@ function displayArtists(countryCode, year) {
     .attr("width", x.bandwidth())
     .attr("height", (d) => height - y(d.paintings))
     .attr("fill", "steelblue")
-    .on("click", function (event, artist) {
-      // Trigger the function to show artist contributions when a bar is clicked
-      showArtistContributions(artist.name, countryCode, year);
+    .on("mouseover", function (event, d) {
+      // Show tooltip with name and value
+      tooltip.transition().duration(200).style("opacity", 1);
+      tooltip
+        .html(`<strong>${d.name}</strong>: ${d.paintings} paintings`)
+        .style("left", `${event.pageX + 10}px`)
+        .style("top", `${event.pageY + 10}px`);
+    })
+    .on("mousemove", function (event) {
+      // Move the tooltip with the cursor
+      tooltip
+        .style("left", `${event.pageX + 10}px`)
+        .style("top", `${event.pageY + 10}px`);
+    })
+    .on("mouseout", function () {
+      // Hide the tooltip on mouse out
+      tooltip.transition().duration(200).style("opacity", 0);
     });
 
   // Append the x-axis
@@ -836,10 +866,13 @@ function showArtistContributions(artistName, countryCode, year) {
     .attr("class", "tooltip")
     .style("opacity", 0)
     .style("position", "absolute")
-    .style("background-color", "#f9f9f9")
-    .style("padding", "5px")
-    .style("border-radius", "4px")
-    .style("box-shadow", "0 2px 10px rgba(0,0,0,0.1)");
+    .style("background-color", "rgba(52, 89, 149, 0.8)") // Softer blue with transparency
+    .style("color", "#fff")
+    .style("padding", "10px")
+    .style("border-radius", "5px")
+    .style("font-family", "Arial, sans-serif")
+    .style("font-size", "12px")
+    .style("box-shadow", "0 5px 15px rgba(0, 0, 0, 0.2)");
 
   // Add circles at each data point with hover effect for tooltip
   svg
@@ -856,14 +889,25 @@ function showArtistContributions(artistName, countryCode, year) {
       tooltip.transition().duration(200).style("opacity", 1);
       tooltip
         .html(d.info)
-        .style("left", `${event.pageX + 5}px`)
-        .style("top", `${event.pageY - 28}px`);
+        .style("left", `${event.pageX + 10}px`)
+        .style("top", `${event.pageY + 10}px`);
+
+      // Change the background color of the circle on hover
+      d3.select(this).attr("fill", yellow); // Change to red or any desired color
+    })
+    .on("mousemove", function (event) {
+      tooltip
+        .style("left", `${event.pageX + 10}px`)
+        .style("top", `${event.pageY + 10}px`);
     })
     .on("mouseout", function () {
       tooltip.transition().duration(200).style("opacity", 0);
+
+      // Reset the circle color back to the original
+      d3.select(this).attr("fill", "steelblue"); // Change back to blue
     });
 
-  // Add labels to the dots
+  // Add labels to the dots (optional)
   svg
     .selectAll(".label")
     .data(lineChartData)
