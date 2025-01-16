@@ -625,7 +625,6 @@ function getArtistsForCountryAndYear(countryCode, year) {
   return artists;
 }
 
-// Display artists and bar chart
 function displayArtists(countryCode, year) {
   const artists = getArtistsForCountryAndYear(countryCode, year);
 
@@ -634,6 +633,9 @@ function displayArtists(countryCode, year) {
 
   const artistListContainer = d3.select("#artist-list");
   artistListContainer.selectAll("*").remove(); // Clear previous list
+
+  // Clear the existing bar chart before drawing the new one
+  d3.select("#chart-container").selectAll("svg").remove(); // Clear the previous bar chart
 
   // Log artist list to verify it's populated
   console.log("Displaying Artists:", limitedArtists);
@@ -661,7 +663,7 @@ function displayArtists(countryCode, year) {
     showArtistContributions(limitedArtists[0].name, countryCode, year); // Default chart on load
   }
 
-  // Create a bar chart to visualize the number of paintings per artist
+  // Create a new bar chart to visualize the number of paintings per artist
   const margin = { top: 20, right: 30, bottom: 40, left: 40 };
   const width = 600 - margin.left - margin.right;
   const height = 400 - margin.top - margin.bottom;
@@ -822,7 +824,7 @@ function showArtistContributions(artistName, countryCode, year) {
     .append("g")
     .attr("class", "x-axis")
     .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
+    .call(d3.axisBottom(x).tickFormat(d3.format("d")));
 
   // Append the y-axis
   svg.append("g").attr("class", "y-axis").call(d3.axisLeft(y));
