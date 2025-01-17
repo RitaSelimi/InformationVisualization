@@ -31,8 +31,14 @@ d3.csv("data/cleaned_artvis.csv").then((rawData) => {
 
     initializeMap(); // Draw the initial map
     drawMap(aggregatedData, 1905); // Default year
+
+    // Render pie charts and bar chart for Germany by default
+    updatePieCharts("DE", 1905);
+    displayArtists("DE", 1905);
+    document.getElementById("selected-country").textContent = "DE"; // Update default selected country label
   });
 });
+
 
 // Preprocess raw data
 function preprocessRawData(rawData) {
@@ -647,125 +653,116 @@ function displayArtists(countryCode, year) {
       .append("p")
       .text("No artists found for this country and year.");
   } else {
-    // Create a list of artist names with their painting counts
-    artistListContainer
-      .selectAll("div")
+    // Create a new bar chart to visualize the number of paintings per artist
+    const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    const svg = d3
+      .select("#chart-container")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Set the scales
+    const x = d3
+      .scaleBand()
+      .domain(limitedArtists.map((d) => d.name))
+      .range([0, width])
+      .padding(0.1);
+
+    const y = d3
+      .scaleLinear()
+      .domain([0, d3.max(limitedArtists, (d) => d.paintings)])
+      .nice()
+      .range([height, 0]);
+
+    // Create tooltip
+    const tooltip = d3
+      .select("#chart-container")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0)
+      .style("position", "absolute")
+      .style("background-color", "rgba(52, 89, 149, 0.8)") // Softer blue with transparency
+      .style("color", "#fff")
+      .style("padding", "10px")
+      .style("border-radius", "5px")
+      .style("font-family", "Arial, sans-serif")
+      .style("font-size", "12px")
+      .style("box-shadow", "0 5px 15px rgba(0, 0, 0, 0.2)");
+
+    // Append the bars and set up tooltip
+    svg
+      .selectAll(".bar")
       .data(limitedArtists)
       .enter()
-      .append("div")
-      .attr("class", "artist-item")
-      .text((d) => `${d.name} (${d.paintings} paintings)`) // Display artist name with painting count
-      .on("click", function (event, artist) {
-        // Update the line chart when an artist is clicked
-        showArtistContributions(artist.name, countryCode, year);
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", (d) => x(d.name))
+      .attr("y", (d) => y(d.paintings))
+      .attr("width", x.bandwidth())
+      .attr("height", (d) => height - y(d.paintings))
+      .attr("fill", "steelblue")
+      .on("mouseover", function (event, d) {
+        // Show tooltip with name and value
+        tooltip.transition().duration(200).style("opacity", 1);
+        tooltip
+          .html(`<strong>${d.name}</strong>: ${d.paintings} paintings`)
+          .style("left", `${event.pageX + 10}px`)
+          .style("top", `${event.pageY + 10}px`);
+      })
+      .on("mousemove", function (event) {
+        // Move the tooltip with the cursor
+        tooltip
+          .style("left", `${event.pageX + 10}px`)
+          .style("top", `${event.pageY + 10}px`);
+      })
+      .on("mouseout", function () {
+        // Hide the tooltip on mouse out
+        tooltip.transition().duration(200).style("opacity", 0);
+      })
+      .on("click", function (event, d) {
+        // Trigger the function to show artist contributions when a bar is clicked
+        showArtistContributions(d.name, countryCode, year);
       });
+
+    // Append the x-axis
+    svg
+      .append("g")
+      .attr("class", "x-axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .style("text-anchor", "middle")
+      .style("font-size", "12px");
+
+    // Append the y-axis
+    svg
+      .append("g")
+      .attr("class", "y-axis")
+      .call(d3.axisLeft(y))
+      .selectAll("text")
+      .style("font-size", "12px");
+
+    // Optional: Add labels on the bars
+    svg
+      .selectAll(".label")
+      .data(limitedArtists)
+      .enter()
+      .append("text")
+      .attr("class", "label")
+      .attr("x", (d) => x(d.name) + x.bandwidth() / 2)
+      .attr("y", (d) => y(d.paintings) - 5)
+      .attr("text-anchor", "middle")
+      .style("font-size", "12px")
+      .text((d) => d.paintings);
 
     // Set the default artist's line chart (first artist in the list)
     showArtistContributions(limitedArtists[0].name, countryCode, year); // Default chart on load
   }
-
-  // Create a new bar chart to visualize the number of paintings per artist
-  const margin = { top: 20, right: 30, bottom: 40, left: 40 };
-  const width = 600 - margin.left - margin.right;
-  const height = 400 - margin.top - margin.bottom;
-
-  const svg = d3
-    .select("#chart-container")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  // Set the scales
-  const x = d3
-    .scaleBand()
-    .domain(limitedArtists.map((d) => d.name))
-    .range([0, width])
-    .padding(0.1);
-
-  const y = d3
-    .scaleLinear()
-    .domain([0, d3.max(limitedArtists, (d) => d.paintings)])
-    .nice()
-    .range([height, 0]);
-
-  // Create tooltip
-  const tooltip = d3
-    .select("#chart-container")
-    .append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0)
-    .style("position", "absolute")
-    .style("background-color", "rgba(52, 89, 149, 0.8)") // Softer blue with transparency
-    .style("color", "#fff")
-    .style("padding", "10px")
-    .style("border-radius", "5px")
-    .style("font-family", "Arial, sans-serif")
-    .style("font-size", "12px")
-    .style("box-shadow", "0 5px 15px rgba(0, 0, 0, 0.2)");
-
-  // Append the bars and set up tooltip
-  svg
-    .selectAll(".bar")
-    .data(limitedArtists)
-    .enter()
-    .append("rect")
-    .attr("class", "bar")
-    .attr("x", (d) => x(d.name))
-    .attr("y", (d) => y(d.paintings))
-    .attr("width", x.bandwidth())
-    .attr("height", (d) => height - y(d.paintings))
-    .attr("fill", "steelblue")
-    .on("mouseover", function (event, d) {
-      // Show tooltip with name and value
-      tooltip.transition().duration(200).style("opacity", 1);
-      tooltip
-        .html(`<strong>${d.name}</strong>: ${d.paintings} paintings`)
-        .style("left", `${event.pageX + 10}px`)
-        .style("top", `${event.pageY + 10}px`);
-    })
-    .on("mousemove", function (event) {
-      // Move the tooltip with the cursor
-      tooltip
-        .style("left", `${event.pageX + 10}px`)
-        .style("top", `${event.pageY + 10}px`);
-    })
-    .on("mouseout", function () {
-      // Hide the tooltip on mouse out
-      tooltip.transition().duration(200).style("opacity", 0);
-    });
-
-  // Append the x-axis
-  svg
-    .append("g")
-    .attr("class", "x-axis")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .style("text-anchor", "middle")
-    .style("font-size", "12px");
-
-  // Append the y-axis
-  svg
-    .append("g")
-    .attr("class", "y-axis")
-    .call(d3.axisLeft(y))
-    .selectAll("text")
-    .style("font-size", "12px");
-
-  // Optional: Add labels on the bars
-  svg
-    .selectAll(".label")
-    .data(limitedArtists)
-    .enter()
-    .append("text")
-    .attr("class", "label")
-    .attr("x", (d) => x(d.name) + x.bandwidth() / 2)
-    .attr("y", (d) => y(d.paintings) - 5)
-    .attr("text-anchor", "middle")
-    .style("font-size", "12px")
-    .text((d) => d.paintings);
 }
 
 function showArtistContributions(artistName, countryCode, year) {
